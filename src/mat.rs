@@ -76,6 +76,7 @@ extern "C" {
         color: Scalar,
     ) -> c_int;
     fn cv_mat_convert_to(src: *const CMat, cv_type: CvType, alpha: c_double, beta: c_double) -> *mut CMat;
+    fn cv_mat_dft(src: *const CMat, dst: *mut CMat, flags: c_int, nonzero_rows: c_int);
 }
 
 /// The class `Mat` represents an n-dimensional dense numerical single-channel or multi-channel array.
@@ -401,6 +402,15 @@ impl Mat {
         let m = unsafe { cv_mat_convert_to(self.inner, cv_type, alpha, beta) };
         Mat::from_raw(m)
     }
+
+    /// Performs a forward or inverse Discrete Fourier transform of a 1D or 2D floating-point array.
+    pub fn dft(&self, flags: DFTFlag, nonzero_rows: i32) -> Mat {
+        let m = CMat::new();
+        unsafe {
+            cv_mat_dft(self.inner, m, Into::<c_int>::into(flags), nonzero_rows);
+        }
+        Mat::from_raw(m)
+    }
 }
 
 /// Various border types, image boundaries are denoted with `|`.
@@ -567,5 +577,67 @@ impl Merge for Vec<&Mat> {
     fn merge(&self) -> Mat {
         let me: &[_] = self;
         me.merge()
+    }
+}
+
+/// Flags for Discrete Fourier transform
+#[derive(Debug, Clone)]
+pub enum DFTFlag {
+    /// No flag
+    None,
+    /// Performs an inverse 1D or 2D transform instead of the default forward transform
+    Inverse,
+    /// scales the result: divide it by the number of array elements. Normally, it is combined with Inverse
+    Scale,
+    /// performs a forward or inverse transform of every individual row of the input matrix
+    Rows,
+    /// performs a forward transformation of 1D or 2D real array; the result, though being a
+    /// complex array, has complex-conjugate symmetry (CCS, see the function description below for
+    /// details), and such an array can be packed into a real array of the same size as input,
+    /// which is the fastest option and which is what the function does by default; however, you
+    /// may wish to get a full complex array (for simpler spectrum analysis, and so on) - pass the
+    /// flag to enable the function to produce a full-size complex output array.
+    ComplexOutput,
+    /// performs an inverse transformation of a 1D or 2D complex array; the result is normally a
+    /// complex array of the same size, however, if the input array has conjugate-complex symmetry
+    /// (for example, it is a result of forward transformation with DFT_COMPLEX_OUTPUT flag), the
+    /// output is a real array; while the function itself does not check whether the input is
+    /// symmetrical or not, you can pass the flag and then the function will assume the symmetry
+    /// and produce the real output array (note that when the input is packed into a real array and
+    /// inverse transformation is executed, the function treats the input as a packed
+    /// complex-conjugate symmetrical array, and the output will also be a real array).
+    RealOutput,
+    /// A combination of the other flags
+    Multiple(Vec<DFTFlag>),
+}
+
+impl Into<c_int> for DFTFlag {
+    fn into(self) -> c_int {
+        match self {
+            DFTFlag::None => 0,
+            DFTFlag::Inverse => 1,
+            DFTFlag::Scale => 2,
+            DFTFlag::Rows => 4,
+            DFTFlag::ComplexOutput => 16,
+            DFTFlag::RealOutput => 32,
+            DFTFlag::Multiple(v) => v.into_iter().fold(0, |acc, x| acc | Into::<i32>::into(x)),
+        }
+    }
+}
+
+impl BitOr for DFTFlag {
+    type Output = Self;
+
+    fn bitor(self, rhs: Self) -> Self {
+        let mut flags = Vec::new();
+        match self {
+            crate::DFTFlag::Multiple(ref x) => flags.extend(x.iter().cloned()),
+            v => flags.push(v),
+        }
+        match rhs {
+            crate::DFTFlag::Multiple(ref x) => flags.extend(x.iter().cloned()),
+            v => flags.push(v),
+        }
+        DFTFlag::Multiple(flags)
     }
 }

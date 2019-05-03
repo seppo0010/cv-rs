@@ -1,4 +1,6 @@
 #include "mat.h"
+#include<iostream>
+using namespace std;
 
 extern "C" {
 
@@ -172,5 +174,9 @@ void* cv_mat_convert_to(
     cv::Mat *dst = new cv::Mat();
     src1->convertTo(*dst, type, alpha, beta);
     return dst;
+}
+
+void cv_mat_dft(const cv::Mat* const src, cv::Mat* const dst, int flags, int nonzeroRows) {
+    dft(*src, *dst, flags, nonzeroRows);
 }
 }
