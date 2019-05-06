@@ -1,6 +1,4 @@
 #include "mat.h"
-#include<iostream>
-using namespace std;
 
 extern "C" {
 
