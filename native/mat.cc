@@ -158,4 +158,8 @@ void cv_mat_copy_make_border(
     cv::Scalar c(color.v0, color.v1, color.v2, color.v3);
     copyMakeBorder(*src, *d, t, b, l, r, type, c);
 }
+
+void cv_mat_magnitude(const cv::Mat* const src1, const cv::Mat* const src2, cv::Mat* const dst) {
+    cv::magnitude(*src1, *src2, *dst);
+}
 }

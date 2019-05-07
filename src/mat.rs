@@ -74,6 +74,7 @@ extern "C" {
         border_type: c_int,
         color: Scalar,
     ) -> c_int;
+    fn cv_mat_magnitude(src1: *const CMat, src2: *const CMat, dst: *mut CMat);
 }
 
 /// The class `Mat` represents an n-dimensional dense numerical single-channel or multi-channel array.
@@ -392,6 +393,16 @@ impl Mat {
             cv_mat_copy_make_border(self.inner, m, top, bottom, left, right, type_ as i32, color);
         }
         Mat::from_raw(m)
+    }
+
+    /// Calculates the magnitude of 2D vectors formed from the corresponding elements of x and y
+    /// arrays:
+    ///
+    /// dst(I) = sqrt(x(I)**2+y(I)**2)
+    pub fn magnitude(src1: &Mat, src2: &Mat) -> Mat {
+        let dst = CMat::new();
+        unsafe { cv_mat_magnitude(src1.inner, src2.inner, dst); }
+        Mat::from_raw(dst)
     }
 }
 
