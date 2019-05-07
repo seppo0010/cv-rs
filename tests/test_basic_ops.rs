@@ -67,3 +67,11 @@ fn test_mat_merge() {
     assert_eq!(merged.size().width, size.width);
     assert_eq!(merged.size().height, size.height);
 }
+
+#[test]
+fn test_mat_copy_to() {
+    let img = utils::load_lenna();
+    let mut dst = Mat::with_size(1024, 1024, img.cv_type() as i32);
+    img.copy_to(&mut dst);
+    assert_eq!(dst.roi(cv::Rect::new(0, 0, 4, 4)).data(), img.roi(cv::Rect::new(0, 0, 4, 4)).data());
+}

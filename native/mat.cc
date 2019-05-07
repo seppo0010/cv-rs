@@ -191,4 +191,7 @@ void cv_mat_split(const cv::Mat* const src, cv::Mat** dst) {
 void cv_mat_magnitude(const cv::Mat* const src1, const cv::Mat* const src2, cv::Mat* const dst) {
     cv::magnitude(*src1, *src2, *dst);
 }
+void cv_mat_copy_to(const cv::Mat *const src, cv::Mat* dst) {
+    src->copyTo(*dst);
+}
 }

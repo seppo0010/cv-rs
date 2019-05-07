@@ -79,6 +79,7 @@ extern "C" {
     fn cv_mat_dft(src: *const CMat, dst: *mut CMat, flags: c_int, nonzero_rows: c_int);
     fn cv_mat_split(src: *const CMat, dst: *mut *mut CMat);
     fn cv_mat_magnitude(src1: *const CMat, src2: *const CMat, dst: *mut CMat);
+    fn cv_mat_copy_to(src: *const CMat, dst: *mut CMat);
 }
 
 /// The class `Mat` represents an n-dimensional dense numerical single-channel or multi-channel array.
@@ -429,6 +430,11 @@ impl Mat {
         let dst = CMat::new();
         unsafe { cv_mat_magnitude(src1.inner, src2.inner, dst); }
         Mat::from_raw(dst)
+    }
+
+    /// Copies the matrix to another one.
+    pub fn copy_to(&self, dst: &mut Mat) {
+        unsafe { cv_mat_copy_to(self.inner, dst.inner) };
     }
 }
 
