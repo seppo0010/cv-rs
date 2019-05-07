@@ -77,6 +77,7 @@ extern "C" {
     ) -> c_int;
     fn cv_mat_convert_to(src: *const CMat, cv_type: CvType, alpha: c_double, beta: c_double) -> *mut CMat;
     fn cv_mat_dft(src: *const CMat, dst: *mut CMat, flags: c_int, nonzero_rows: c_int);
+    fn cv_mat_split(src: *const CMat, dst: *mut *mut CMat);
 }
 
 /// The class `Mat` represents an n-dimensional dense numerical single-channel or multi-channel array.
@@ -410,6 +411,13 @@ impl Mat {
             cv_mat_dft(self.inner, m, Into::<c_int>::into(flags), nonzero_rows);
         }
         Mat::from_raw(m)
+    }
+
+    /// Splits a mat into its channels
+    pub fn split(&self) -> Vec<Mat> {
+        let mut v: Vec<*mut CMat> = (0..self.channels).map(|_| CMat::new()).collect();
+        unsafe { cv_mat_split(self.inner, v.as_mut_ptr()); }
+        v.into_iter().map(|m| Mat::from_raw(m)).collect()
     }
 }
 

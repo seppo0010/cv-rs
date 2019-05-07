@@ -1,5 +1,4 @@
 #include "mat.h"
-
 extern "C" {
 
 void* cv_mat_from_file_storage(const char* path, const char* section) {
@@ -176,5 +175,16 @@ void* cv_mat_convert_to(
 
 void cv_mat_dft(const cv::Mat* const src, cv::Mat* const dst, int flags, int nonzeroRows) {
     dft(*src, *dst, flags, nonzeroRows);
+}
+
+void cv_mat_split(const cv::Mat* const src, cv::Mat** dst) {
+    std::vector<cv::Mat> matVec;
+    for (int i = 0; i < src->channels(); i++) {
+        matVec.push_back(*dst[i]);
+    }
+    cv::split(*src, matVec);
+    for (int i = 0; i < src->channels(); i++) {
+        *dst[i] = matVec[i];
+    }
 }
 }
