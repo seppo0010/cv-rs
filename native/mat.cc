@@ -187,4 +187,8 @@ void cv_mat_split(const cv::Mat* const src, cv::Mat** dst) {
         *dst[i] = matVec[i];
     }
 }
+
+void cv_mat_magnitude(const cv::Mat* const src1, const cv::Mat* const src2, cv::Mat* const dst) {
+    cv::magnitude(*src1, *src2, *dst);
+}
 }

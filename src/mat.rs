@@ -78,6 +78,7 @@ extern "C" {
     fn cv_mat_convert_to(src: *const CMat, cv_type: CvType, alpha: c_double, beta: c_double) -> *mut CMat;
     fn cv_mat_dft(src: *const CMat, dst: *mut CMat, flags: c_int, nonzero_rows: c_int);
     fn cv_mat_split(src: *const CMat, dst: *mut *mut CMat);
+    fn cv_mat_magnitude(src1: *const CMat, src2: *const CMat, dst: *mut CMat);
 }
 
 /// The class `Mat` represents an n-dimensional dense numerical single-channel or multi-channel array.
@@ -418,6 +419,16 @@ impl Mat {
         let mut v: Vec<*mut CMat> = (0..self.channels).map(|_| CMat::new()).collect();
         unsafe { cv_mat_split(self.inner, v.as_mut_ptr()); }
         v.into_iter().map(|m| Mat::from_raw(m)).collect()
+    }
+
+    /// Calculates the magnitude of 2D vectors formed from the corresponding elements of x and y
+    /// arrays:
+    ///
+    /// dst(I) = sqrt(x(I)**2+y(I)**2)
+    pub fn magnitude(src1: &Mat, src2: &Mat) -> Mat {
+        let dst = CMat::new();
+        unsafe { cv_mat_magnitude(src1.inner, src2.inner, dst); }
+        Mat::from_raw(dst)
     }
 }
 
