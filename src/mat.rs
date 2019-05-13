@@ -80,7 +80,8 @@ extern "C" {
     fn cv_mat_split(src: *const CMat, dst: *mut *mut CMat);
     fn cv_mat_magnitude(src1: *const CMat, src2: *const CMat, dst: *mut CMat);
     fn cv_mat_copy_to(src: *const CMat, dst: *mut CMat);
-    fn cv_mat_pow(src: *const CMat, power: f64, dst: *mut CMat);
+    fn cv_mat_pow(src: *const CMat, power: c_double, dst: *mut CMat);
+    fn cv_mat_divide(src1: *const CMat, src2: *const CMat, dst: *mut CMat, scale: c_double, dtype: c_int);
 }
 
 /// The class `Mat` represents an n-dimensional dense numerical single-channel or multi-channel array.
@@ -442,6 +443,13 @@ impl Mat {
     pub fn pow(&self, power: f64) -> Mat {
         let dst = CMat::new();
         unsafe { cv_mat_pow(self.inner, power, dst) };
+        Mat::from_raw(dst)
+    }
+
+    /// Performs per-element division of two arrays or a scalar by an array.
+    pub fn divide(&self, src2: &Mat, scale: c_double, dtype: c_int) -> Mat {
+        let dst = CMat::new();
+        unsafe { cv_mat_divide(self.inner, src2.inner, dst, scale, dtype); }
         Mat::from_raw(dst)
     }
 }

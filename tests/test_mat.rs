@@ -50,5 +50,13 @@ fn test_magnitude() {
 fn test_pow() {
     let mat = Mat::from_buffer(3, 1, cv::core::CvType::Cv8UC2, &[1, 2, 3, 4, 5, 6]);
     let powered = mat.pow(2.0);
-    assert_eq!(powered.data() ,&[1, 4, 9, 16, 25, 36]);
+    assert_eq!(powered.data(), &[1, 4, 9, 16, 25, 36]);
+}
+
+#[test]
+fn test_divide() {
+    let mat1 = Mat::from_buffer(3, 1, cv::core::CvType::Cv8UC2, &[10, 20, 30, 80, 100, 6]);
+    let mat2 = Mat::from_buffer(3, 1, cv::core::CvType::Cv8UC2, &[1, 2, 3, 4, 5, 6]);
+    let divided = mat1.divide(&mat2, 1.0, -1);
+    assert_eq!(divided.data(), &[10, 10, 10, 20, 20, 1]);
 }
